@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="./css/jquery.timepicker.css">
+    <link rel="stylesheet" href="./css/lightbox.css"/>
+
+    <link rel="stylesheet" href="./css/style.css">
+
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="./js/jquery.timepicker.min.js"></script>
+    <script src="./js/lightbox-2.6.min.js"></script>
+</head>
+<body>
+
+<script>
+
+// Needs for correct date output
+    Date.prototype.toLocaleFormat = function(format) {
+        var f = {y : this.getYear() - 100,m : this.getMonth() + 1,d : this.getDate(),H : this.getHours(),M : this.getMinutes(),S : this.getSeconds()}
+        for(k in f)
+            format = format.replace('%' + k, f[k] < 10 ? "0" + f[k] : f[k]);
+        return format;
+    };
+
+// myReservations stores all user`s reservations
+    var myReservations = {};
+    $( document ).ready(function() {
+
+
+        $('#loginModal').modal('show');
+        $('#loginModal').on('shown.bs.modal', function (){
+            $('#inputUid').focus();
+        });
+
+        $('#loginForm').on('submit', function() {
+            var form = $(this);
+
+            var request = $.ajax({
+                url: "http://localhost:3000/login",
+                data: form.serialize(),
+                method: "POST",
+                crossDomain: true
+            });
+
+            request.done(function(){
+                getReservations(function(result){
+                    outputReservations(result);
+                    $('#loginModal').modal('hide');
+                    $('.container').show();
+                });
+
+            });
+
+            request.fail(function(xhr){
+                $('#loginError').html(xhr.responseText).delay(2000).fadeOut(500, function(){$(this).show().empty()});
+            });
+            return false;
+        });
+
+        $("#datepicker" ).datepicker({ firstDay: 1, minDate: new Date(), maxDate: "+1m" });
+        $('#timepicker').timepicker({
+            step:60,
+            forceRoundTime: true,
+            disableTextInput: true,
+            timeFormat: 'H:i',
+            scrollDefaultTime: '09:00'
+        });
+
+        $('#createResButton').on('click', function(){
+
+            var date = $("#datepicker").datepicker( "getDate").setHours($('#startTimeBar .active input').val());
+
+            var endDate = date + $('#durationBar .active input').val()*1000*60*60;
+            var request = $.ajax({
+                url: "http://localhost:3000/reservations",
+                data: ($('#roomIdForm').serialize() +'&date='+ date +'&endDate='+ endDate),
+                method: "POST",
+                crossDomain: true
+            });
+            request.done(function(){
+                getReservations(function(result){
+                    outputReservations(result);
+                });
+            });
+            request.fail(function(xhr){
+                outputHttpError(xhr);
+            });
+        })
+
+        $('#roomIdForm a').tooltip({"title":"Click to view on a map"});
+
+     });
+    function outputReservations(msg){
+        $('#resTable tbody').empty();
+        var idindex = 0;
+        for(var i=0; i < msg.length; i++){
+            var date = new Date(Date.parse(msg[i].date));
+            var endDate = new Date(Date.parse(msg[i].endDate));
+            $('#resTable tbody').append('<tr><td>'+date.toLocaleFormat('%d.%m.%y at %H:%M')+'</td><td>'+
+                    endDate.toLocaleFormat('%d.%m.%y at %H:%M')+'</td><td>'+msg[i].roomId+'</td><td>'+msg[i].userId+'</td><td>Unremovable</td></tr>');
+
+            if (msg[i].userId == $('#inputUid').val()) {
+                var currentId ='myResDelBut-'+idindex;
+                $('#resTable tbody tr td:last').html("<button id ='"+currentId+"'type='button' class='removeRes'>Remove</button>");
+                idindex++;
+                myReservations[currentId] = { roomId: msg[i].roomId, date: msg[i].date};
+            }
+        }
+
+        $('#resTable tbody button').on('click', function(){
+            var context = this;
+            var reserv = myReservations[$(this).context.id];
+            var request = $.ajax({
+                url: "http://localhost:3000/reservations",
+                data: {roomId: reserv.roomId, date: reserv.date },
+                method: "DELETE",
+                crossDomain: true
+            });
+            request.done(function(){
+                getReservations(function(result){
+                    outputReservations(result);
+                });
+            });
+            request.fail(function(xhr){
+                outputHttpError(xhr);
+            });
+        });
+    }
+
+    function getReservations(callback){
+
+        var request = $.ajax({
+            url: "http://localhost:3000/reservations",
+            method: "GET",
+            dataType: 'json',
+            crossDomain: true
+        });
+        request.done(function(msg){
+            callback(msg);
+        });
+        request.fail(function(xhr){
+            outputHttpError(xhr);
+        });
+    }
+
+    function outputHttpError(xhr){
+        $('#reservationError').html(xhr.responseText).delay(2000).fadeOut(500, function(){$(this).show().empty()});
+    }
+
+</script>
+
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+
+                <form class="form-horizontal" name="login-form" method="POST" role="form" id="loginForm">
+                    <div class="form-group">
+                        <label for="inputUid" class="col-lg-3 control-label">UID</label>
+                        <div class="col-lg-8">
+                            <input  class="form-control" type="text" id="inputUid" placeholder="UID" value="eltegrauser" name="uid">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword" class="col-lg-3 control-label">Password</label>
+                        <div class="col-lg-8">
+                            <input type="password" class="form-control" id="inputPassword" placeholder="Password" value="EltegrA" name="password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-offset-3 col-lg-8">
+                            <button id="loginButton" class="btn btn-primary" data-loading-text="Sending...">Sign in</button>
+                            <span class="error" id="loginError"></span>
+                        </div>
+
+                    </div>
+                </form>
+            </div><!-- /.modal-body -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<section class="container"  style="display: none;" >
+    <div class="row">
+
+        <div class="col-md-4 col-lg-3" id="left-column">
+
+            <p><b>Choose a date of reservation:</b></p>
+            <div id="datepicker"></div>
+
+            <br/><span class="error" id="reservationError"></span>
+
+        </div>
+        <div class="col-md-8 col-lg-9" id="right-column">
+
+            <p><b>Choose a start time of reservation:</b></p>
+            <div class="btn-group" id ="startTimeBar" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="options" value="0"> 00:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="1"> 01:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="2"> 02:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="3"> 03:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="4"> 04:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="5"> 05:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="6"> 06:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="7"> 07:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="8"> 08:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="9"> 09:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="10"> 10:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="11"> 11:00
+                </label><br/>&nbsp;<br/>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="12"> 12:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="13"> 13:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="14"> 14:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="15"> 15:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="16"> 16:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="17"> 17:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="18"> 18:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="19"> 19:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="20"> 20:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="21"> 21:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="22"> 22:00
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="23"> 23:00
+                </label>
+            </div>
+
+            <p><br/><b>Choose a duration of reservation:</b></p>
+            <div class="btn-group" id ="durationBar" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="options" value="1"> 1 hour
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="2"> 2 hours
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="3"> 3 hours
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="4"> 4 hours
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="5"> 5 hours
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="6"> 6 hours
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="7"> 7 hours
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" value="8"> 8 hours
+                </label>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 col-lg-6">
+
+                    <p><br/><b>Choose a room number:</b><Br></p>
+
+                    <form id='roomIdForm'>
+                        <input type="radio" name="roomId" value="1" checked> <a href="./img/801_hall.png" data-lightbox="image-1">8th floor, room #801, hall</a><Br></input>
+                        <input type="radio" name="roomId" value="2"> <a href="./img/801_mir.png" data-lightbox="image-1">8th floor, room #801, behind a mirrorwall</a><Br></input>
+                        <input type="radio" name="roomId" value="3"> <a href="./img/20_small.png" data-lightbox="image-1">20th floor, small, behind a glasswall</a><Br></input>
+                        <input type="radio" name="roomId" value="4"> <a href="./img/20_large.png" data-lightbox="image-1">20th floor, large separated room</a><Br></input>
+                    </form>
+                </div>
+                <div class="col-md-2 col-lg-3" id="buttonColumn">
+                    <br/>&nbsp;<br/>
+                    <button type='button' id='createResButton' class="btn btn-primary btn-lg">Create new reservation</button>
+                </div>
+
+        </div>
+
+    </div>
+
+    <div style="clear:both"></div>
+    <br/>
+    <b>All reservations:</b><br/>
+
+    <table class="table table-hover table-striped text-center" id="resTable">
+        <thead>
+            <tr>
+                <th>Start date</th>
+                <th>End date</th>
+                <th>Room number</th>
+                <th>User</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody class="table-hover">
+
+        </tbody>
+    </table>
+
+</section>
+
+</body>
+</html>

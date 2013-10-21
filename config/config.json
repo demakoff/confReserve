@@ -1,0 +1,28 @@
+{
+    "port": 3000,
+    "mongoose": {
+        "uri": "mongodb://localhost/confroomres",
+        "options": {
+            "server": {
+                "socketOptions": {
+                    "keepAlive": 1
+                }
+            }
+        }
+    },
+    "session":{
+        "secret": "confresroom",
+        "key": "sid",
+        "cookie": {
+            "path": "/",
+            "httpOnly": true,
+            "maxAge": 600000
+        }
+    },
+    "ldap":{
+        "url":"ldap://ldap.exadel.com:389",
+        "base1": "ou=addressbook,dc=exadel,dc=com",
+        "base": "ou=Special,dc=exadel,dc=com"
+
+    }
+}

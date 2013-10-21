@@ -1,0 +1,21 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.error {
+    margin-left: 20px;
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+}
+div #buttonColumn .btn-lg {
+    line-height: 3.5;
+}
+#resTable th {
+    text-align: center;
+}
