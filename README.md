@@ -2,5 +2,5 @@ confReserve
 ===========
 
 
-app.js - server side index-file.<br/>
-public/index.html - client-side index-file.
+<a href="./blob/master/app.js">app.js</a> - server side index-file.<br/>
+<a href="./blob/master/public/index.html">public/index.html</a> - client-side index-file.
