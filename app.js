@@ -30,7 +30,7 @@ app.use(express.session({
 app.use(app.router);   // app.get(), app.post()....
 app.use(express.static(path.join(__dirname, 'public')));
 
-// development only
+
 
 http.createServer(app).listen(config.get('port'), function(){
     log.info('Express server listening on port ' + config.get('port'));
@@ -139,7 +139,7 @@ app.post('/login', function(req, res, next){
     }
 });
 
-
+// Get all reservation middleware
 app.get('/reservations', function(req, res, next){
     Reservation.find({}, function(err, reservations){
         if (err) next(err);
