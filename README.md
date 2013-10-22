@@ -9,7 +9,7 @@ Service is based on REST principles and supports next client-requests:<br/>
 
 <b>1. Authorization</b><br/>
 
-<b>Request:</b> POST /login 	(body: {"uid":"useruid", "password":"userpassword"})<br/>
+<b>Request:</b> POST /login 	(body: {"uid":useruid, "password":userpassword})<br/>
 <b>Response:</b> if successful: 200, OK<br/>
 		if failed: error.code, error.message<br/>
 
