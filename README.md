@@ -5,18 +5,18 @@ confReserve
 <a href="https://github.com/demakoff/confReserve/blob/master/app.js">app.js</a> - server side index-file.<br/>
 <a href="https://github.com/demakoff/confReserve/blob/master/public/index.html">public/index.html</a> - client-side index-file.
 
-Service is based on REST principles and maintain next client-requests:<br/>
+Service is based on REST principles and supports next client-requests:<br/>
 
-<b style="text-decoration: underline">1. Authorization</b><br/>
+<b>1. Authorization</b><br/>
 
 <b>Request:</b> POST /login 	(body: {"uid":"useruid", "password":"userpassword"})<br/>
 <b>Response:</b> if successful: 200, OK<br/>
 		if failed: error.code, error.message<br/>
 
-<b style="text-decoration: underline">2. Get all reservations</b><br/>
+<b>2. Get all reservations</b><br/>
 
 <b>Request:</b> GET /reservations<br/>
-<b>Response:</b> if successful: JSON in the next format <br/>
+<b>Response:</b> if successful: JSON in the next format: <br/>
   {<br/>
 	"roomId": roomId,<br/>
 	"date": startdate,<br/>
@@ -25,7 +25,7 @@ Service is based on REST principles and maintain next client-requests:<br/>
   }<br/>
 		if failed: error.code, error.message<br/>
 
-<b style="text-decoration: underline">3. Create new reservation</b>
+<b>3. Create new reservation</b>
 
 <b>Request:</b> POST /reservations 	(body: <br/>
 {<br/>
@@ -36,7 +36,7 @@ Service is based on REST principles and maintain next client-requests:<br/>
 <b>Response:</b> if successful: 200, OK<br/>
 		if failed: error.code, error.message<br/>
 
-<b style="text-decoration: underline">4. Remove reservation</b>
+<b>4. Remove reservation</b>
 
 <b>Request:</b> DELETE /reservations 	(body: <br/>
 {<br/>
