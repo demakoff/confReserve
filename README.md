@@ -5,43 +5,43 @@ confReserve
 <a href="https://github.com/demakoff/confReserve/blob/master/app.js">app.js</a> - server side index-file.<br/>
 <a href="https://github.com/demakoff/confReserve/blob/master/public/index.html">public/index.html</a> - client-side index-file.
 
-Service is based on REST principles and maintain next client-requests:
+Service is based on REST principles and maintain next client-requests:<br/>
 
-<b><u>1. Authorization</u></b>
+<b style="text-decoration: underline">1. Authorization</b><br/>
 
-<b>Request:</b> POST /login 	(body: {"uid":"useruid", "password":"userpassword"})
-<b>Response:</b> if successful: 200, OK
-		if failed: error.code, error.message
+<b>Request:</b> POST /login 	(body: {"uid":"useruid", "password":"userpassword"})<br/>
+<b>Response:</b> if successful: 200, OK<br/>
+		if failed: error.code, error.message<br/>
 
-<b><u>2. Get all reservations</u></b>
+<b style="text-decoration: underline">2. Get all reservations</b><br/>
 
-<b>Request:</b> GET /reservations
-<b>Response:</b> if successful: JSON in the next format 
-  {
-	"roomId": roomId,
-	"date": startdate,
-	"userId": userUid,
-	"endDate": endDate    
-  }
-		if failed: error.code, error.message
+<b>Request:</b> GET /reservations<br/>
+<b>Response:</b> if successful: JSON in the next format <br/>
+  {<br/>
+	"roomId": roomId,<br/>
+	"date": startdate,<br/>
+	"userId": userUid,<br/>
+	"endDate": endDate    <br/>
+  }<br/>
+		if failed: error.code, error.message<br/>
 
-<b><u>3. Create new reservation</u></b>
+<b style="text-decoration: underline">3. Create new reservation</b>
 
-<b>Request:</b> POST /reservations 	(body: 
-{
-	"roomId": roomId,
-	"date": startdate,	
-	"endDate": endDate    
-})
-<b>Response:</b> if successful: 200, OK
-		if failed: error.code, error.message
+<b>Request:</b> POST /reservations 	(body: <br/>
+{<br/>
+	"roomId": roomId,<br/>
+	"date": startdate,	<br/>
+	"endDate": endDate    <br/>
+})<br/>
+<b>Response:</b> if successful: 200, OK<br/>
+		if failed: error.code, error.message<br/>
 
-<b><u>4. Remove reservation</u></b>
+<b style="text-decoration: underline">4. Remove reservation</b>
 
-<b>Request:</b> DELETE /reservations 	(body: 
-{
-	"roomId": roomId,
-	"date": startdate
-})
-<b>Response:</b> if successful: 200, OK
-		if failed: error.code, error.message
+<b>Request:</b> DELETE /reservations 	(body: <br/>
+{<br/>
+	"roomId": roomId,<br/>
+	"date": startdate<br/>
+})<br/>
+<b>Response:</b> if successful: 200, OK<br/>
+		if failed: error.code, error.message<br/>
